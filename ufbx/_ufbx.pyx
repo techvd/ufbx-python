@@ -446,6 +446,7 @@ cdef extern from "ufbx_wrapper.h":
     const float* ufbx_wrapper_mesh_get_vertex_bitangents(const ufbx_mesh *mesh, size_t *out_count)
     const float* ufbx_wrapper_mesh_get_vertex_colors(const ufbx_mesh *mesh, size_t *out_count)
     const uint32_t* ufbx_wrapper_mesh_get_indices(const ufbx_mesh *mesh, size_t *out_count)
+    const uint32_t* ufbx_wrapper_mesh_get_uv_indices(const ufbx_mesh *mesh, size_t *out_count)
 
     # Mesh face data
     size_t ufbx_wrapper_mesh_get_face_count(const ufbx_mesh *mesh)
@@ -2474,6 +2475,22 @@ cdef class Mesh(Element):
 
         cdef size_t count = 0
         cdef const uint32_t* data = ufbx_wrapper_mesh_get_indices(self._mesh, &count)
+
+        if data == NULL or count == 0:
+            return None
+
+        cdef np.npy_intp shape[1]
+        shape[0] = <np.npy_intp>count
+        return np.PyArray_SimpleNewFromData(1, shape, np.NPY_UINT32, <void*>data)
+
+    @property
+    def uv_indices(self):
+        """UV indices as numpy array (N,)"""
+        if self._scene._closed:
+            raise RuntimeError("Scene is closed")
+
+        cdef size_t count = 0
+        cdef const uint32_t* data = ufbx_wrapper_mesh_get_uv_indices(self._mesh, &count)
 
         if data == NULL or count == 0:
             return None

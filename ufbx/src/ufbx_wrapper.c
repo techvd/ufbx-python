@@ -280,6 +280,16 @@ const uint32_t* ufbx_wrapper_mesh_get_indices(const ufbx_mesh *mesh, size_t *out
     return mesh->vertex_position.indices.data;
 }
 
+const uint32_t* ufbx_wrapper_mesh_get_uv_indices(const ufbx_mesh *mesh, size_t *out_count) {
+    if (!mesh || !mesh->vertex_uv.exists || !out_count) {
+        if (out_count) *out_count = 0;
+        return NULL;
+    }
+
+    *out_count = mesh->vertex_uv.indices.count;
+    return mesh->vertex_uv.indices.data;
+}
+
 // Mesh face data
 size_t ufbx_wrapper_mesh_get_face_count(const ufbx_mesh *mesh) {
     return mesh ? mesh->faces.count : 0;
